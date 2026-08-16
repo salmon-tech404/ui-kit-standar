@@ -1,0 +1,29 @@
+# UI Kit Standard — LLM Context & Codebase Map
+
+> UI Kit Standard is a Full-Stack Multi-Tenant SaaS Design System Studio & Master XML Specification Generator for AI Vibe Coding (Cursor, Claude, Copilot).
+
+## Core Architecture
+- Backend: Node.js, Express, TypeScript, MongoDB Atlas, xmlbuilder2, DeepSeek-V3 AI engine
+- Frontend: Vite, React 18, Zustand, Tailwind CSS, Lucide Icons
+- Key Output: Master XML Specification with RFC 2119 Directives (MUST, MUST_NOT)
+
+## Key Source Files
+- Project Specification: [UI_Kit_Standard_Sidebar_Specification.md](UI_Kit_Standard_Sidebar_Specification.md)
+- Knowledge Summaries: [knowledge_summaries.md](knowledge_summaries.md)
+- Codebase Index: [CODEBASE_INDEX.md](CODEBASE_INDEX.md)
+
+### Frontend Core
+- Global State Store: [frontend/src/store/useDesignStore.ts](frontend/src/store/useDesignStore.ts)
+- Main App: [frontend/src/App.tsx](frontend/src/App.tsx)
+- Pane 1 Master Rail: [frontend/src/components/studio/MasterRail.tsx](frontend/src/components/studio/MasterRail.tsx)
+- Pane 2 Sub-Config Drawer: [frontend/src/components/studio/SubConfigPanel.tsx](frontend/src/components/studio/SubConfigPanel.tsx)
+- Pane 3 Live Canvas: [frontend/src/components/studio/LiveCanvas.tsx](frontend/src/components/studio/LiveCanvas.tsx)
+- Pane 4 Deep Inspector: [frontend/src/components/studio/DeepInspector.tsx](frontend/src/components/studio/DeepInspector.tsx)
+- XML Export Modal: [frontend/src/components/modals/XmlExportModal.tsx](frontend/src/components/modals/XmlExportModal.tsx)
+- Color Math Engine: [frontend/src/utils/colorEngine.ts](frontend/src/utils/colorEngine.ts)
+
+### Backend Core
+- XML Generator Engine: [backend/src/services/xmlExportService.ts](backend/src/services/xmlExportService.ts)
+- AI Provider Registry: [backend/src/services/ai/AIProviderRegistry.ts](backend/src/services/ai/AIProviderRegistry.ts)
+- DeepSeek Provider: [backend/src/services/ai/providers/DeepSeekProvider.ts](backend/src/services/ai/providers/DeepSeekProvider.ts)
+- Express Server: [backend/src/server.ts](backend/src/server.ts)
