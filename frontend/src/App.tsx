@@ -1,86 +1,66 @@
-import React, { useEffect, useState } from 'react';
-import { useAuthStore } from './store/useAuthStore';
-import { useDesignStore } from './store/useDesignStore';
-import { useProjectStore } from './store/useProjectStore';
-
+import React, { useState, useEffect } from 'react';
 import { Topbar } from './components/studio/Topbar';
 import { MasterRail } from './components/studio/MasterRail';
 import { SubConfigPanel } from './components/studio/SubConfigPanel';
 import { LiveCanvas } from './components/studio/LiveCanvas';
 import { DeepInspector } from './components/studio/DeepInspector';
-
-import { AuthModal } from './components/auth/AuthModal';
-import { ProjectDashboard } from './components/dashboard/ProjectDashboard';
 import { XmlExportModal } from './components/modals/XmlExportModal';
 import { AiGenerateModal } from './components/modals/AiGenerateModal';
+import { SettingsModal } from './components/modals/SettingsModal';
+import { AuthModal } from './components/auth/AuthModal';
+import { useDesignStore } from './store/useDesignStore';
+import { useProjectStore } from './store/useProjectStore';
 
 export const App: React.FC = () => {
-  const { checkAuth } = useAuthStore();
+  const [isXmlModalOpen, setIsXmlModalOpen] = useState(false);
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
   const { injectCssTokens } = useDesignStore();
   const { fetchProjects } = useProjectStore();
 
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [isDashboardOpen, setIsDashboardOpen] = useState(false);
-  const [isXmlExportOpen, setIsXmlExportOpen] = useState(false);
-  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
-
   useEffect(() => {
-    // 1. Initial CSS Tokens injection
     injectCssTokens();
-
-    // 2. Check auth session via secure httpOnly cookie
-    checkAuth();
-
-    // 3. Fetch user projects
-    fetchProjects();
-  }, []);
+    fetchProjects().catch(() => {});
+  }, [injectCssTokens, fetchProjects]);
 
   return (
-    <div className="flex flex-col w-screen h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 font-sans">
-      {/* 1. Global Studio Topbar */}
+    <div className="h-screen w-screen flex flex-col bg-slate-100 dark:bg-slate-950 overflow-hidden font-sans text-slate-900 dark:text-slate-100 antialiased">
+      {/* 1. TOPBAR */}
       <Topbar
+        onOpenXmlExport={() => setIsXmlModalOpen(true)}
         onOpenAiModal={() => setIsAiModalOpen(true)}
-        onOpenAuthModal={() => setIsAuthModalOpen(true)}
-        onOpenDashboard={() => setIsDashboardOpen(true)}
       />
 
-      {/* 2. Master 4-Pane Studio Layout */}
-      <main className="flex flex-1 h-[calc(100vh-56px)] overflow-hidden relative">
-        {/* Pane 1: Master Navigation Rail (250px) */}
-        <MasterRail onOpenXmlExport={() => setIsXmlExportOpen(true)} />
+      {/* 2. 4-PANE STUDIO LAYOUT */}
+      <main className="flex-1 flex overflow-hidden relative">
+        {/* PANE 1: MASTER RAIL */}
+        <MasterRail onOpenXmlExport={() => setIsXmlModalOpen(true)} />
 
-        {/* Pane 2: Sub-Config Drawer (290px) */}
+        {/* PANE 2: SUB-CONFIG DRAWER */}
         <SubConfigPanel />
 
-        {/* Pane 3: Center Main Live Canvas (Flexible) */}
+        {/* PANE 3: LIVE STRESS-TEST CANVAS */}
         <LiveCanvas
-          onOpenXmlExport={() => setIsXmlExportOpen(true)}
+          onOpenXmlExport={() => setIsXmlModalOpen(true)}
           onOpenAiModal={() => setIsAiModalOpen(true)}
         />
 
-        {/* Pane 4: Right Deep Property Inspector (320px) */}
+        {/* PANE 4: DEEP TOKEN INSPECTOR */}
         <DeepInspector />
       </main>
 
-      {/* Modals & Dialogs */}
-      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
-      <ProjectDashboard
-        isOpen={isDashboardOpen}
-        onClose={() => setIsDashboardOpen(false)}
-        onOpenAuthModal={() => {
-          setIsDashboardOpen(false);
-          setIsAuthModalOpen(true);
-        }}
-      />
-      <XmlExportModal isOpen={isXmlExportOpen} onClose={() => setIsXmlExportOpen(false)} />
+      {/* MODALS */}
+      <XmlExportModal isOpen={isXmlModalOpen} onClose={() => setIsXmlModalOpen(false)} />
       <AiGenerateModal
         isOpen={isAiModalOpen}
         onClose={() => setIsAiModalOpen(false)}
-        onOpenAuthModal={() => {
-          setIsAiModalOpen(false);
-          setIsAuthModalOpen(true);
-        }}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
       />
+      <SettingsModal />
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
     </div>
   );
 };
+
+export default App;

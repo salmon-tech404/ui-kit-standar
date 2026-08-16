@@ -9,7 +9,7 @@ export interface ExportXmlOptions {
 export class XmlExportService {
   /**
    * Generates a deterministic, machine-readable Master XML Specification
-   * with complete RFC 2119 Directives, Foundations, Components, and Patterns.
+   * with complete RFC 2119 Directives, Foundations, Components, Patterns, and Brand Assets.
    * Auto-escapes all user-provided data via xmlbuilder2 to prevent XML/Prompt injection.
    */
   public static generateMasterXml(options: ExportXmlOptions): string {
@@ -18,14 +18,17 @@ export class XmlExportService {
     const f = tokens.foundations || {};
     const b = f.colors?.brand || { primary: '#6366F1', secondary: '#EC4899', accent: '#10B981' };
     const s = f.colors?.semantic || { success: '#10B981', warning: '#F59E0B', error: '#EF4444', info: '#3B82F6' };
-    const surf = f.colors?.surface || { background: '#FFFFFF', foreground: '#0F172A', surface: '#FFFFFF', border: '#E2E8F0' };
-    const typo = f.typography || { fontHeading: 'Plus Jakarta Sans', fontBody: 'Inter', fontMono: 'JetBrains Mono', scaleRatio: 1.25 };
-    const sp = f.spacing || { scale: [0, 4, 8, 12, 16, 20, 24, 32, 40, 48, 64], componentHeights: { sm: 32, md: 40, lg: 48 } };
+    const txt = f.colors?.text || { primary: '#0F172A', secondary: '#475569', tertiary: '#94A3B8', link: '#6366F1' };
+    const brd = f.colors?.borders || { subtle: '#F1F5F9', default: '#E2E8F0', strong: '#CBD5E1', focus: '#6366F1', error: '#EF4444' };
+    const bgLayers = f.colors?.backgroundLayers || { page: '#F8FAFC', card: '#FFFFFF', modal: '#FFFFFF', sidebar: '#FFFFFF' };
+    const typo = f.typography || { fontHeading: 'Plus Jakarta Sans', fontBody: 'Inter', fontMono: 'JetBrains Mono', scaleRatio: 1.25, maxMeasureCharacters: 70 };
+    const sp = f.spacing || { scale: [0, 4, 8, 12, 16, 20, 24, 32, 40, 48, 64], gaps: { iconText: 8, formFields: 16, sections: 64 }, componentHeights: { sm: 32, md: 40, lg: 48, xl: 56 } };
     const rad = f.radius || { sm: 4, md: 8, lg: 12, xl: 16, full: 9999 };
-    const motion = f.motion || { durations: { fast: 150, normal: 200, slow: 300 }, easings: { default: 'cubic-bezier(0.4, 0, 0.2, 1)' } };
+    const motion = f.motion || { durations: { fast: 150, normal: 200, slow: 300 }, microInteractions: { hover: 150, dropdown: 120, modalEnter: 250, pageTransition: 300 } };
     const zindex = f.zindex || { layers: { base: 0, dropdown: 1000, sticky: 1100, modal: 1400, toast: 1600, tooltip: 1700 } };
-    const a11y = f.accessibility || { focusRingWidth: 2, focusRingOffset: 2, focusRingColor: '#6366F1', minContrastRatioAA: 4.5 };
+    const a11y = f.accessibility || { focusRingWidth: 2, focusRingOffset: 2, focusRingColor: '#6366F1', minContrastRatioAA: 4.5, minContrastRatioAAA: 7.0 };
     const prefix = tokens.project?.prefix || '--ui-';
+    const customRules = tokens.customRules || [];
 
     const root = create({ version: '1.0', encoding: 'UTF-8' })
       .ele('ui_kit_specification', {
@@ -37,15 +40,13 @@ export class XmlExportService {
 
     // 1. AI DIRECTIVES (RFC 2119 Strict Rules)
     const directives = root.ele('ai_directives');
-    directives.ele('role').txt('Senior Frontend Architect & Design Systems Engineer');
+    directives.ele('role').txt('Senior Principal Design Systems Architect');
+    directives.ele('mission').txt('Produce production-grade, accessible, mathematically aligned frontend code strictly obeying all defined tokens.');
+    
     const rules = directives.ele('strict_rules');
-    rules.ele('rule', { id: 'R01', priority: 'MUST_NOT' }).txt('Do not write raw hex colors. All colors MUST resolve to defined CSS variables.');
-    rules.ele('rule', { id: 'R02', priority: 'MUST_NOT' }).txt('Do not use arbitrary spacing. MUST use the 8-point spacing scale (0, 4, 8, 12, 16, 24, 32, 40, 48, 64px).');
-    rules.ele('rule', { id: 'R03', priority: 'MUST' }).txt('Buttons, Inputs, and Dropdowns on the same row MUST have identical control heights (MD = 40px).');
-    rules.ele('rule', { id: 'R04', priority: 'MUST' }).txt('Nested containers MUST obey concentric radius formula: R_inner = max(0, R_outer - Padding).');
-    rules.ele('rule', { id: 'R05', priority: 'MUST' }).txt('Import icons ONLY from "lucide-react" with stroke-width: 1.5.');
-    rules.ele('rule', { id: 'R06', priority: 'MUST' }).txt('Interactive elements MUST support 6 states: Default, Hover, Focus-Visible, Active, Disabled, and Loading.');
-    rules.ele('rule', { id: 'R07', priority: 'MUST' }).txt('All motion transitions MUST respect @media (prefers-reduced-motion: reduce).');
+    customRules.filter((r: any) => r.enabled).forEach((r: any) => {
+      rules.ele('rule', { id: r.id, priority: r.priority }).txt(r.instruction);
+    });
 
     // 2. FOUNDATIONS
     const foundNode = root.ele('foundations');
@@ -63,35 +64,82 @@ export class XmlExportService {
     semNode.ele('color', { name: 'error', hex: s.error, css_var: `${prefix}color-error` });
     semNode.ele('color', { name: 'info', hex: s.info, css_var: `${prefix}color-info` });
 
-    const surfNode = colorsNode.ele('surface');
-    surfNode.ele('color', { name: 'background', hex: surf.background, css_var: `${prefix}color-background` });
-    surfNode.ele('color', { name: 'foreground', hex: surf.foreground, css_var: `${prefix}color-foreground` });
-    surfNode.ele('color', { name: 'surface', hex: surf.surface, css_var: `${prefix}color-surface` });
-    surfNode.ele('color', { name: 'border', hex: surf.border, css_var: `${prefix}color-border` });
+    const txtNode = colorsNode.ele('text_foreground');
+    txtNode.ele('color', { name: 'primary', hex: txt.primary, css_var: `${prefix}color-text-primary` });
+    txtNode.ele('color', { name: 'secondary', hex: txt.secondary, css_var: `${prefix}color-text-secondary` });
+    txtNode.ele('color', { name: 'tertiary', hex: txt.tertiary, css_var: `${prefix}color-text-tertiary` });
+    txtNode.ele('color', { name: 'link', hex: txt.link, css_var: `${prefix}color-text-link` });
+
+    const brdNode = colorsNode.ele('borders_hierarchy');
+    brdNode.ele('border', { level: 'subtle', hex: brd.subtle, css_var: `${prefix}color-border-subtle` });
+    brdNode.ele('border', { level: 'default', hex: brd.default, css_var: `${prefix}color-border-default` });
+    brdNode.ele('border', { level: 'strong', hex: brd.strong, css_var: `${prefix}color-border-strong` });
+    brdNode.ele('border', { level: 'focus', hex: brd.focus, css_var: `${prefix}color-border-focus` });
+    brdNode.ele('border', { level: 'error', hex: brd.error, css_var: `${prefix}color-border-error` });
+
+    const bgNode = colorsNode.ele('background_layers');
+    bgNode.ele('layer', { target: 'page', hex: bgLayers.page, css_var: `${prefix}color-bg-page` });
+    bgNode.ele('layer', { target: 'card', hex: bgLayers.card, css_var: `${prefix}color-bg-card` });
+    bgNode.ele('layer', { target: 'modal', hex: bgLayers.modal, css_var: `${prefix}color-bg-modal` });
+    bgNode.ele('layer', { target: 'sidebar', hex: bgLayers.sidebar, css_var: `${prefix}color-bg-sidebar` });
 
     // 2.2 Typography
-    const typoNode = foundNode.ele('typography', { heading_font: typo.fontHeading, body_font: typo.fontBody, mono_font: typo.fontMono, scale_ratio: String(typo.scaleRatio) });
+    const typoNode = foundNode.ele('typography', {
+      heading_font: typo.fontHeading,
+      body_font: typo.fontBody,
+      mono_font: typo.fontMono,
+      scale_ratio: String(typo.scaleRatio),
+      max_measure: `${typo.maxMeasureCharacters || 70}ch`,
+    });
     if (typo.styles) {
       for (const [sKey, style] of Object.entries(typo.styles as Record<string, any>)) {
-        typoNode.ele('style', { level: sKey, size: `${style.fontSize}px`, weight: String(style.fontWeight), line_height: String(style.lineHeight), tracking: style.letterSpacing });
+        typoNode.ele('style', {
+          level: sKey,
+          size_desktop: `${style.fontSize}px`,
+          size_mobile: `${style.fontSizeMobile || style.fontSize}px`,
+          weight: String(style.fontWeight),
+          line_height: String(style.lineHeight),
+          tracking: style.letterSpacing,
+        });
       }
     }
 
-    // 2.3 Spacing & Sizing
+    // 2.3 Spacing & Gaps
     const spaceNode = foundNode.ele('spacing_and_sizing', { base_grid: '8px' });
     const scaleNode = spaceNode.ele('scale');
     sp.scale?.forEach((step: number) => {
       scaleNode.ele('step', { value: `${step}px`, rem: `${step / 16}rem` });
     });
-    spaceNode.ele('component_heights', { sm: `${sp.componentHeights?.sm || 32}px`, md: `${sp.componentHeights?.md || 40}px`, lg: `${sp.componentHeights?.lg || 48}px` });
+    spaceNode.ele('semantic_gaps', {
+      icon_text: `${sp.gaps?.iconText || 8}px`,
+      form_fields: `${sp.gaps?.formFields || 16}px`,
+      sections: `${sp.gaps?.sections || 64}px`,
+    });
+    spaceNode.ele('component_heights', {
+      sm: `${sp.componentHeights?.sm || 32}px`,
+      md: `${sp.componentHeights?.md || 40}px`,
+      lg: `${sp.componentHeights?.lg || 48}px`,
+      xl: `${sp.componentHeights?.xl || 56}px`,
+    });
 
     // 2.4 Radius & Shadows
     const radNode = foundNode.ele('radius_and_shadows', { concentric_rule: 'R_inner = max(0, R_outer - Padding)' });
     radNode.ele('radius', { sm: `${rad.sm}px`, md: `${rad.md}px`, lg: `${rad.lg}px`, xl: `${rad.xl}px`, full: `${rad.full}px` });
-    radNode.ele('shadows', { card: f.shadows?.card || 'sm', modal: f.shadows?.modal || 'xl', dropdown: f.shadows?.dropdown || 'md' });
+    radNode.ele('elevation_shadows', {
+      card: f.shadows?.card || '0 1px 3px 0 rgba(0,0,0,0.08)',
+      modal: f.shadows?.modal || '0 25px 50px -12px rgba(0,0,0,0.25)',
+      dropdown: f.shadows?.dropdown || '0 10px 15px -3px rgba(0,0,0,0.1)',
+    });
 
     // 2.5 Icons
-    foundNode.ele('icons', { library: 'lucide-react', stroke_width: '1.5', default_size: '20px' });
+    foundNode.ele('icons', {
+      library: f.icons?.library || 'lucide-react',
+      stroke_width: String(f.icons?.strokeWidth || 1.5),
+      size_inline: '16px',
+      size_button: '20px',
+      size_nav: '24px',
+      optical_alignment: 'true',
+    });
 
     // 2.6 Breakpoints
     const bpNode = foundNode.ele('breakpoints', { standard: 'Tailwind CSS' });
@@ -99,52 +147,70 @@ export class XmlExportService {
     bpNode.ele('breakpoint', { key: 'md', min_width: '768px', behavior: 'Tablet, collapsed sidebar, 2 columns' });
     bpNode.ele('breakpoint', { key: 'lg', min_width: '1024px', behavior: 'Laptop, persistent sidebar, 3 columns' });
     bpNode.ele('breakpoint', { key: 'xl', min_width: '1280px', behavior: 'Desktop standard, 4 columns' });
-    bpNode.ele('breakpoint', { key: '2xl', min_width: '1536px', behavior: 'Large screen max-width container' });
+    bpNode.ele('breakpoint', { key: '2xl', min_width: '1536px', behavior: 'Wide screen max-width container' });
 
     // 2.7 Motion
-    const motNode = foundNode.ele('motion', { default_easing: motion.easings?.default || 'cubic-bezier(0.4, 0, 0.2, 1)' });
-    motNode.ele('durations', { fast: `${motion.durations?.fast || 150}ms`, normal: `${motion.durations?.normal || 200}ms`, slow: `${motion.durations?.slow || 300}ms` });
+    const motNode = foundNode.ele('motion', { default_easing: 'cubic-bezier(0.4, 0, 0.2, 1)' });
+    motNode.ele('micro_interactions', {
+      hover: `${motion.microInteractions?.hover || 150}ms`,
+      dropdown: `${motion.microInteractions?.dropdown || 120}ms`,
+      modal_enter: `${motion.microInteractions?.modalEnter || 250}ms`,
+      page_transition: `${motion.microInteractions?.pageTransition || 300}ms`,
+    });
 
-    // 2.8 Z-Index
-    const zNode = foundNode.ele('z_index_layers');
-    if (zindex.layers) {
-      for (const [lKey, val] of Object.entries(zindex.layers as Record<string, any>)) {
-        zNode.ele('layer', { name: lKey, value: String(val) });
-      }
-    }
-
-    // 2.9 Accessibility
+    // 2.8 Accessibility
     foundNode.ele('accessibility', {
       focus_ring: `${a11y.focusRingWidth || 2}px solid ${a11y.focusRingColor || '#6366F1'}`,
       focus_offset: `${a11y.focusRingOffset || 2}px`,
       min_contrast_aa: '4.5:1',
       min_contrast_aaa: '7.0:1',
+      require_aria_labels: 'true',
     });
 
-    // 3. COMPONENTS (7 Groups with 6-State Matrices)
+    // 3. COMPONENTS (EXHAUSTIVE COMPONENT SPECIFICATIONS)
     const compNode = root.ele('components');
-    const compGroups = ['actions', 'forms', 'feedback', 'overlays', 'navigation', 'data_display', 'layout'];
-    compGroups.forEach((cg) => {
-      const gNode = compNode.ele('group', { name: cg });
-      gNode.ele('state_matrix', { states: 'default, hover, focus-visible, active, disabled, loading' });
-    });
+    
+    // Actions: Button 5 Variants
+    const btnNode = compNode.ele('component', { name: 'Button', category: 'Actions' });
+    btnNode.ele('sizes', { sm: '32px', md: '40px', lg: '48px', xl: '56px' });
+    btnNode.ele('states', { list: 'default, hover, focus-visible, active, disabled, loading' });
+    const btnVarNode = btnNode.ele('variants');
+    const btnVars = tokens.components?.actions?.button?.variants || {};
+    for (const [vKey, vVal] of Object.entries(btnVars as Record<string, any>)) {
+      btnVarNode.ele('variant', {
+        name: vKey,
+        bg: vVal.bg,
+        text: vVal.text,
+        border: vVal.border,
+        hover_bg: vVal.hoverBg,
+        active_bg: vVal.activeBg,
+        disabled_bg: vVal.disabledBg,
+      });
+    }
+
+    // Forms: Input & Select
+    const inputNode = compNode.ele('component', { name: 'Input', category: 'Forms' });
+    inputNode.ele('height', { md: '40px' });
+    inputNode.ele('states', { default_border: brd.default, focus_border: brd.focus, error_border: brd.error });
+
+    // Overlays: Modal Presets
+    const modalNode = compNode.ele('component', { name: 'Modal', category: 'Overlays' });
+    modalNode.ele('sizes', { sm: '400px', md: '560px', lg: '720px' });
+    modalNode.ele('backdrop', { blur: 'true', bg: 'rgba(15, 23, 42, 0.6)' });
 
     // 4. PATTERNS
     const patNode = root.ele('patterns');
-    patNode.ele('page_templates', { items: 'Dashboard Analytics, User Settings, Auth Flow, SaaS Pricing' });
-    patNode.ele('sections', { items: 'Hero Header, Bento Feature Grid, Testimonials, FAQ Accordion' });
+    (tokens.patterns?.pageTemplates || []).forEach((p: any) => {
+      patNode.ele('page_template', { name: p.name, description: p.description, sections: p.sections.join(', ') });
+    });
 
-    // 5. GUIDELINES (DO & DONT)
-    const guideNode = root.ele('guidelines');
-    const doNode = guideNode.ele('do');
-    doNode.ele('item').txt('Use CSS variable tokens for all spacing, colors, and radii.');
-    doNode.ele('item').txt('Ensure all buttons have visible focus-ring outlines for keyboard navigation.');
-    doNode.ele('item').txt('Maintain optical alignment with uniform 40px component heights.');
-
-    const dontNode = guideNode.ele('dont');
-    dontNode.ele('item').txt('Do not use arbitrary margin/padding values outside the 8pt scale.');
-    dontNode.ele('item').txt('Do not write inline hex colors.');
-    dontNode.ele('item').txt('Do not use nested cards with mismatched inner border-radii.');
+    // 5. BRAND ASSETS
+    const brandAssetNode = root.ele('brand_assets');
+    brandAssetNode.ele('logo', {
+      aspect_ratio: tokens.brandAssets?.logo?.aspectRatio || '16:4',
+      min_height: `${tokens.brandAssets?.logo?.minHeight || 28}px`,
+      safe_padding: `${tokens.brandAssets?.logo?.safeZonePadding || 16}px`,
+    });
 
     return root.end({ prettyPrint: true });
   }

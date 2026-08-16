@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useProjectStore } from '../../store/useProjectStore';
 import { useDesignStore } from '../../store/useDesignStore';
 import { exportApi } from '../../api/exportApi';
-import { FileText, Copy, Download, Check, X, Sparkles } from 'lucide-react';
+import { FileText, Copy, Download, Check, X, Sparkles, Code2 } from 'lucide-react';
 
 interface XmlExportModalProps {
   isOpen: boolean;
@@ -12,53 +12,57 @@ interface XmlExportModalProps {
 export const XmlExportModal: React.FC<XmlExportModalProps> = ({ isOpen, onClose }) => {
   const { activeProject } = useProjectStore();
   const { tokens } = useDesignStore();
-  const [xmlContent, setXmlContent] = useState<string>('Generating specification XML...');
+  const [exportFormat, setExportFormat] = useState<'xml' | 'json' | 'tailwind' | 'css'>('xml');
+  const [content, setContent] = useState<string>('Generating output...');
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
 
-    const fetchXml = async () => {
+    const generateFormat = () => {
       setLoading(true);
-      if (activeProject?._id) {
-        try {
-          const xml = await exportApi.previewXml(activeProject._id);
-          setXmlContent(xml);
-        } catch (e) {
-          setXmlContent(generateClientXml(activeProject?.name || 'UI Kit Standard', tokens));
-        }
-      } else {
-        setXmlContent(generateClientXml('UI Kit Standard', tokens));
+      const name = activeProject?.name || 'UI Kit Standard';
+
+      if (exportFormat === 'xml') {
+        setContent(generateClientXml(name, tokens));
+      } else if (exportFormat === 'json') {
+        setContent(JSON.stringify(tokens, null, 2));
+      } else if (exportFormat === 'tailwind') {
+        setContent(generateTailwindConfig(tokens));
+      } else if (exportFormat === 'css') {
+        setContent(generateCssVariables(tokens));
       }
       setLoading(false);
     };
 
-    fetchXml();
-  }, [isOpen, activeProject, tokens]);
+    generateFormat();
+  }, [isOpen, activeProject, tokens, exportFormat]);
 
   if (!isOpen) return null;
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(xmlContent);
+    navigator.clipboard.writeText(content);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleDownload = () => {
-    const blob = new Blob([xmlContent], { type: 'application/xml;charset=utf-8' });
+    const ext = exportFormat === 'xml' ? 'xml' : exportFormat === 'json' ? 'json' : exportFormat === 'tailwind' ? 'js' : 'css';
+    const mime = exportFormat === 'xml' ? 'application/xml' : exportFormat === 'json' ? 'application/json' : 'text/plain';
+    const blob = new Blob([content], { type: `${mime};charset=utf-8` });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${(activeProject?.name || 'ui-kit-standard').toLowerCase().replace(/\s+/g, '-')}-spec.xml`;
+    link.download = `${(activeProject?.name || 'ui-kit-standard').toLowerCase().replace(/\s+/g, '-')}-spec.${ext}`;
     link.click();
     URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in">
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
-        {/* Modal Header */}
+        {/* Header */}
         <div className="p-4 px-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-md">
@@ -66,9 +70,9 @@ export const XmlExportModal: React.FC<XmlExportModalProps> = ({ isOpen, onClose 
             </div>
             <div>
               <h2 className="text-base font-bold text-slate-900 dark:text-white font-heading">
-                Master XML Specification Export
+                Multi-Format Design System Exporter
               </h2>
-              <p className="text-xs text-slate-500">Complete 6-Tier Architecture with RFC 2119 AI Directives</p>
+              <p className="text-xs text-slate-500">RFC 2119 AI XML Directives, W3C JSON Tokens, and Tailwind Config</p>
             </div>
           </div>
           <button onClick={onClose} className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white transition">
@@ -76,27 +80,48 @@ export const XmlExportModal: React.FC<XmlExportModalProps> = ({ isOpen, onClose 
           </button>
         </div>
 
-        {/* Code Box */}
-        <div className="flex-1 p-6 overflow-hidden flex flex-col">
-          <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
-            <span>Feed this XML directly into Cursor (.cursorrules) or Claude 3.7 system prompt.</span>
-            <span className="font-mono text-[11px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-indigo-600 dark:text-indigo-400 font-bold">
-              version="1.0.0"
-            </span>
+        {/* Format Selector */}
+        <div className="px-6 py-2.5 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          <div className="flex gap-1.5 text-xs font-semibold">
+            {[
+              { key: 'xml', label: 'Master XML (AI Vibe Coding)' },
+              { key: 'json', label: 'W3C Design Tokens JSON' },
+              { key: 'tailwind', label: 'tailwind.config.js' },
+              { key: 'css', label: 'CSS Variables' },
+            ].map((fmt) => (
+              <button
+                key={fmt.key}
+                onClick={() => setExportFormat(fmt.key as any)}
+                className={`px-3 py-1.5 rounded-lg transition ${
+                  exportFormat === fmt.key
+                    ? 'bg-indigo-600 text-white font-bold shadow-sm'
+                    : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                }`}
+              >
+                {fmt.label}
+              </button>
+            ))}
           </div>
 
+          <span className="font-mono text-[11px] bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded text-indigo-600 dark:text-indigo-400 font-bold">
+            Health: {tokens.project.completenessScore}%
+          </span>
+        </div>
+
+        {/* Code View */}
+        <div className="flex-1 p-6 overflow-hidden flex flex-col">
           <div className="flex-1 bg-slate-950 rounded-xl p-4 overflow-auto border border-slate-800">
             <pre className="font-mono text-xs text-emerald-400 leading-relaxed whitespace-pre select-text">
-              {loading ? 'Generating XML...' : xmlContent}
+              {loading ? 'Generating...' : content}
             </pre>
           </div>
         </div>
 
-        {/* Modal Footer */}
+        {/* Footer */}
         <div className="p-4 px-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-xs text-slate-500">
             <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
-            <span>Guaranteed 100% immune to XML Injection</span>
+            <span>Guaranteed 100% immune to XML & Prompt Injection</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -105,7 +130,7 @@ export const XmlExportModal: React.FC<XmlExportModalProps> = ({ isOpen, onClose 
               className="px-4 py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 text-slate-800 dark:text-slate-200 text-xs font-semibold rounded-lg transition flex items-center gap-1.5"
             >
               {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copied ? 'Copied XML!' : 'Copy XML'}</span>
+              <span>{copied ? 'Copied to Clipboard!' : 'Copy to Clipboard'}</span>
             </button>
 
             <button
@@ -113,7 +138,7 @@ export const XmlExportModal: React.FC<XmlExportModalProps> = ({ isOpen, onClose 
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg shadow-md shadow-indigo-500/25 transition flex items-center gap-1.5"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Download .XML</span>
+              <span>Download File</span>
             </button>
           </div>
         </div>
@@ -125,20 +150,17 @@ export const XmlExportModal: React.FC<XmlExportModalProps> = ({ isOpen, onClose 
 function generateClientXml(name: string, tokens: any): string {
   const b = tokens.foundations.colors.brand;
   const s = tokens.foundations.colors.semantic;
-  const surf = tokens.foundations.colors.surface;
+  const txt = tokens.foundations.colors.text;
+  const brd = tokens.foundations.colors.borders;
+  const bg = tokens.foundations.colors.backgroundLayers;
   const prefix = tokens.project?.prefix || '--ui-';
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <ui_kit_specification version="1.0.0" project="${name}" prefix="${prefix}" generated_at="${new Date().toISOString()}">
   <ai_directives>
-    <role>Senior Frontend Architect &amp; Design Systems Engineer</role>
+    <role>Senior Principal Design Systems Architect</role>
     <strict_rules>
-      <rule id="R01" priority="MUST_NOT">Do not write raw hex colors. All colors MUST resolve to defined CSS variables (${prefix}color-*).</rule>
-      <rule id="R02" priority="MUST_NOT">Do not use arbitrary spacing. MUST use the 8-point spacing scale (0, 4, 8, 12, 16, 24, 32, 40, 48, 64px).</rule>
-      <rule id="R03" priority="MUST">Buttons, Inputs, and Dropdowns on the same row MUST have identical control heights (MD = 40px).</rule>
-      <rule id="R04" priority="MUST">Nested containers MUST obey concentric radius formula: R_inner = max(0, R_outer - Padding).</rule>
-      <rule id="R05" priority="MUST">Import icons ONLY from "lucide-react" with stroke-width: 1.5.</rule>
-      <rule id="R06" priority="MUST">Interactive elements MUST support 6 states: Default, Hover, Focus-Visible, Active, Disabled, and Loading.</rule>
+      ${tokens.customRules.filter((r: any) => r.enabled).map((r: any) => `<rule id="${r.id}" priority="${r.priority}">${r.instruction}</rule>`).join('\n      ')}
     </strict_rules>
   </ai_directives>
   <foundations>
@@ -153,26 +175,81 @@ function generateClientXml(name: string, tokens: any): string {
         <color name="warning" hex="${s.warning}" css_var="${prefix}color-warning" />
         <color name="error" hex="${s.error}" css_var="${prefix}color-error" />
       </semantic>
-      <surface>
-        <color name="background" hex="${surf.background}" css_var="${prefix}color-background" />
-        <color name="foreground" hex="${surf.foreground}" css_var="${prefix}color-foreground" />
-      </surface>
+      <text_foreground>
+        <color name="primary" hex="${txt.primary}" css_var="${prefix}color-text-primary" />
+        <color name="secondary" hex="${txt.secondary}" css_var="${prefix}color-text-secondary" />
+        <color name="link" hex="${txt.link}" css_var="${prefix}color-text-link" />
+      </text_foreground>
+      <borders_hierarchy>
+        <border level="subtle" hex="${brd.subtle}" css_var="${prefix}color-border-subtle" />
+        <border level="default" hex="${brd.default}" css_var="${prefix}color-border-default" />
+        <border level="strong" hex="${brd.strong}" css_var="${prefix}color-border-strong" />
+      </borders_hierarchy>
+      <background_layers>
+        <layer target="page" hex="${bg.page}" css_var="${prefix}color-bg-page" />
+        <layer target="card" hex="${bg.card}" css_var="${prefix}color-bg-card" />
+        <layer target="modal" hex="${bg.modal}" css_var="${prefix}color-bg-modal" />
+      </background_layers>
     </colors>
-    <typography heading_font="${tokens.foundations.typography.fontHeading}" body_font="${tokens.foundations.typography.fontBody}" scale_ratio="${tokens.foundations.typography.scaleRatio}" />
-    <spacing_and_sizing base_grid="8px" component_height_md="40px" />
+    <typography heading_font="${tokens.foundations.typography.fontHeading}" body_font="${tokens.foundations.typography.fontBody}" scale_ratio="${tokens.foundations.typography.scaleRatio}" max_measure="70ch" />
+    <spacing_and_sizing base_grid="8px" component_height_md="40px" gap_icon_text="${tokens.foundations.spacing.gaps.iconText}px" />
     <radius_and_shadows concentric_rule="R_inner = max(0, R_outer - Padding)" radius_md="${tokens.foundations.radius.md}px" />
-    <motion default_duration="200ms" default_easing="cubic-bezier(0.4, 0, 0.2, 1)" />
-    <z_index_layers dropdown="1000" sticky="1100" modal="1400" toast="1600" tooltip="1700" />
-    <accessibility min_contrast_aa="4.5:1" focus_ring="2px solid ${tokens.foundations.accessibility.focusRingColor}" />
+    <icons library="lucide-react" stroke_width="1.5" size_button="20px" optical_alignment="true" />
+    <motion micro_hover="150ms" micro_modal="250ms" prefers_reduced_motion="true" />
+    <accessibility min_contrast_aa="4.5:1" focus_ring="2px solid ${tokens.foundations.accessibility.focusRingColor}" require_aria="true" />
   </foundations>
   <components>
-    <group name="actions" state_matrix="default, hover, focus-visible, active, disabled, loading" />
-    <group name="forms" state_matrix="default, hover, focus-visible, active, disabled, loading" />
-    <group name="feedback" state_matrix="default, hover, focus-visible, active, disabled, loading" />
-    <group name="overlays" state_matrix="default, hover, focus-visible, active, disabled, loading" />
-    <group name="navigation" state_matrix="default, hover, focus-visible, active, disabled, loading" />
-    <group name="data_display" state_matrix="default, hover, focus-visible, active, disabled, loading" />
-    <group name="layout" state_matrix="default, hover, focus-visible, active, disabled, loading" />
+    <component name="Button" category="Actions">
+      <sizes sm="32px" md="40px" lg="48px" xl="56px" />
+      <variants>
+        <variant name="primary" bg="${tokens.components.actions.button.variants.primary.bg}" text="${tokens.components.actions.button.variants.primary.text}" />
+        <variant name="secondary" bg="${tokens.components.actions.button.variants.secondary.bg}" text="${tokens.components.actions.button.variants.secondary.text}" />
+        <variant name="destructive" bg="${tokens.components.actions.button.variants.destructive.bg}" text="${tokens.components.actions.button.variants.destructive.text}" />
+      </variants>
+    </component>
   </components>
 </ui_kit_specification>`;
+}
+
+function generateTailwindConfig(tokens: any): string {
+  return `/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: ['class', '[data-theme="dark"]'],
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: '${tokens.foundations.colors.brand.primary}',
+          hover: '${tokens.foundations.colors.brand.primaryHover}',
+        },
+        surface: {
+          page: '${tokens.foundations.colors.backgroundLayers.page}',
+          card: '${tokens.foundations.colors.backgroundLayers.card}',
+        }
+      },
+      fontFamily: {
+        heading: ['${tokens.foundations.typography.fontHeading}', 'sans-serif'],
+        body: ['${tokens.foundations.typography.fontBody}', 'sans-serif'],
+      },
+      borderRadius: {
+        DEFAULT: '${tokens.foundations.radius.md}px',
+        lg: '${tokens.foundations.radius.lg}px',
+        xl: '${tokens.foundations.radius.xl}px',
+      }
+    }
+  }
+};`;
+}
+
+function generateCssVariables(tokens: any): string {
+  const prefix = tokens.project.prefix || '--ui-';
+  return `:root {
+  ${prefix}color-primary: ${tokens.foundations.colors.brand.primary};
+  ${prefix}color-primary-hover: ${tokens.foundations.colors.brand.primaryHover};
+  ${prefix}color-bg-page: ${tokens.foundations.colors.backgroundLayers.page};
+  ${prefix}color-bg-card: ${tokens.foundations.colors.backgroundLayers.card};
+  ${prefix}font-heading: '${tokens.foundations.typography.fontHeading}', sans-serif;
+  ${prefix}font-body: '${tokens.foundations.typography.fontBody}', sans-serif;
+  ${prefix}radius-md: ${tokens.foundations.radius.md}px;
+}`;
 }

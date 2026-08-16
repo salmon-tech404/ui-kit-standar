@@ -17,19 +17,20 @@
   * [`frontend/vite.config.ts`](frontend/vite.config.ts) — Vite build configuration with `/api` proxy.
 
 * **Zustand Global State Stores (`frontend/src/store/`):**
-  * [`frontend/src/store/useDesignStore.ts`](frontend/src/store/useDesignStore.ts) — Master 6-tier design tokens, responsive breakpoints, drawer states, and dynamic CSS injector.
+  * [`frontend/src/store/useDesignStore.ts`](frontend/src/store/useDesignStore.ts) — Master 6-tier design tokens, custom RFC rule builder, completeness health score, and dynamic CSS injector.
   * [`frontend/src/store/useProjectStore.ts`](frontend/src/store/useProjectStore.ts) — Multi-tenant project synchronization with MongoDB.
   * [`frontend/src/store/useAuthStore.ts`](frontend/src/store/useAuthStore.ts) — In-memory JWT access token management and auth state.
 
 * **4-Pane Studio Components (`frontend/src/components/studio/`):**
-  * [`frontend/src/components/studio/Topbar.tsx`](frontend/src/components/studio/Topbar.tsx) — Top bar with Tailwind breakpoints (`sm`, `md`, `lg`, `xl`, `2xl`), auto-fit status, AI credits, and drawer toggles.
+  * [`frontend/src/components/studio/Topbar.tsx`](frontend/src/components/studio/Topbar.tsx) — Top bar with Tailwind breakpoints (`sm`, `md`, `lg`, `xl`, `2xl`), Health score badge, DeepSeek AI credits, and settings button.
   * [`frontend/src/components/studio/MasterRail.tsx`](frontend/src/components/studio/MasterRail.tsx) — **Pane 1**: 6 Master Tiers (Project & Theme, Foundations, Components, Patterns, Brand, System).
-  * [`frontend/src/components/studio/SubConfigPanel.tsx`](frontend/src/components/studio/SubConfigPanel.tsx) — **Pane 2**: Slide-out drawer with dedicated subpanels for all 9 foundations and 7 component groups.
+  * [`frontend/src/components/studio/SubConfigPanel.tsx`](frontend/src/components/studio/SubConfigPanel.tsx) — **Pane 2**: Slide-out drawer with dedicated subpanels for Colors (with Text/Layers), Typography (Responsive), Spacing (Gaps), Icons, Breakpoints, Motion, Accessibility, Button 5-Variants, and Patterns.
   * [`frontend/src/components/studio/LiveCanvas.tsx`](frontend/src/components/studio/LiveCanvas.tsx) — **Pane 3**: Real-time stress-test canvas with click-to-inspect and auto-fit scaling.
-  * [`frontend/src/components/studio/DeepInspector.tsx`](frontend/src/components/studio/DeepInspector.tsx) — **Pane 4**: Polymorphic Inspector Engine (Color 2D/11 shades/WCAG, Typography, 8pt Ruler, Concentric Radius, Motion, Z-Index 3D Stack, 6-State Matrix, Impact Tracing).
+  * [`frontend/src/components/studio/DeepInspector.tsx`](frontend/src/components/studio/DeepInspector.tsx) — **Pane 4**: Polymorphic Inspector Engine with Live Component Preview, DO/DON'T guidelines tab, XML fragment preview, and Impact Tracing.
 
 * **Modal Dialogs (`frontend/src/components/modals/`):**
-  * [`frontend/src/components/modals/XmlExportModal.tsx`](frontend/src/components/modals/XmlExportModal.tsx) — Master XML specification live preview, 1-click copy, and `.xml` download.
+  * [`frontend/src/components/modals/SettingsModal.tsx`](frontend/src/components/modals/SettingsModal.tsx) — RFC 2119 Custom Rule Builder, Token Namespace Prefix, and Completeness Health Audit checklist.
+  * [`frontend/src/components/modals/XmlExportModal.tsx`](frontend/src/components/modals/XmlExportModal.tsx) — Multi-Format Exporter (Master XML, W3C JSON Tokens, Tailwind Config, CSS Variables).
   * [`frontend/src/components/modals/AiGenerateModal.tsx`](frontend/src/components/modals/AiGenerateModal.tsx) — DeepSeek AI theme prompt generator with credit tracker.
   * [`frontend/src/components/dashboard/ProjectDashboard.tsx`](frontend/src/components/dashboard/ProjectDashboard.tsx) — Multi-project manager.
   * [`frontend/src/components/auth/AuthModal.tsx`](frontend/src/components/auth/AuthModal.tsx) — Authentication modal (Register/Login).
@@ -75,10 +76,3 @@
   * [`backend/src/controllers/project.controller.ts`](backend/src/controllers/project.controller.ts) & [`backend/src/routes/project.routes.ts`](backend/src/routes/project.routes.ts)
   * [`backend/src/controllers/ai.controller.ts`](backend/src/controllers/ai.controller.ts) & [`backend/src/routes/ai.routes.ts`](backend/src/routes/ai.routes.ts)
   * [`backend/src/controllers/export.controller.ts`](backend/src/controllers/export.controller.ts) & [`backend/src/routes/export.routes.ts`](backend/src/routes/export.routes.ts)
-
----
-
-## 🧪 Test Suites
-
-* [`backend/tests/xmlExportService.test.ts`](backend/tests/xmlExportService.test.ts) — XML auto-escaping & injection immunity verification.
-* [`frontend/tests/colorEngine.test.ts`](frontend/tests/colorEngine.test.ts) — ColorEngine math & WCAG 2.1 evaluation test.

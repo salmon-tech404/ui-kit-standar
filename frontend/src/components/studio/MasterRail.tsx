@@ -182,9 +182,9 @@ export const MasterRail: React.FC<MasterRailProps> = ({ onOpenXmlExport }) => {
                       <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`} />
                       {!isRailCollapsed && <span className="truncate">{item.label}</span>}
                     </div>
-                    {!isRailCollapsed && item.badge && (
+                    {!isRailCollapsed && (item as any).badge && (
                       <span className="text-[10px] font-semibold px-1.5 py-0.2 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded-full">
-                        {item.badge}
+                        {(item as any).badge}
                       </span>
                     )}
                   </button>
