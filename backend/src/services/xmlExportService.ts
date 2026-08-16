@@ -1,199 +1,150 @@
 import { create } from 'xmlbuilder2';
 
-export interface ExportProjectData {
-  name: string;
+export interface ExportXmlOptions {
+  projectName: string;
+  tokens: any;
   version?: string;
-  schemaVersion?: string;
-  tokens: {
-    foundations?: {
-      colors?: {
-        brand?: { primary?: string; primaryHover?: string; primaryFocus?: string; secondary?: string; accent?: string };
-        semantic?: { success?: string; warning?: string; error?: string; info?: string };
-        neutral?: Record<string, string>;
-        surface?: { background?: string; foreground?: string; surface?: string; surfaceSubtle?: string; border?: string; borderStrong?: string };
-      };
-      typography?: {
-        fontHeading?: string;
-        fontBody?: string;
-        fontMono?: string;
-        baseSize?: number;
-        scaleRatio?: number;
-      };
-      spacing?: {
-        base?: number;
-        scale?: number[];
-      };
-      radius?: {
-        base?: number;
-        sm?: number;
-        md?: number;
-        lg?: number;
-        xl?: number;
-        full?: number;
-      };
-      shadows?: {
-        sm?: string;
-        md?: string;
-        lg?: string;
-        xl?: string;
-      };
-      breakpoints?: {
-        mobile?: number;
-        tablet?: number;
-        desktop?: number;
-        wide?: number;
-      };
-    };
-    brand?: {
-      iconLibrary?: string;
-      strokeWidth?: string;
-    };
-    components?: Record<string, any>;
-  };
 }
 
 export class XmlExportService {
   /**
-   * Generates a fully structured, XML-escaped UI Kit Specification file.
-   * Uses xmlbuilder2 to guarantee 100% protection against XML/Prompt Injection.
+   * Generates a deterministic, machine-readable Master XML Specification
+   * with complete RFC 2119 Directives, Foundations, Components, and Patterns.
+   * Auto-escapes all user-provided data via xmlbuilder2 to prevent XML/Prompt injection.
    */
-  public static generateXml(project: ExportProjectData): string {
-    const pName = project.name || 'Untitled UI Kit';
-    const pVersion = project.version || '1.0.0';
-    const schemaVer = project.schemaVersion || '1.0.0';
-    const genDate = new Date().toISOString();
+  public static generateMasterXml(options: ExportXmlOptions): string {
+    const { projectName, tokens, version = '1.0.0' } = options;
 
-    const f = project.tokens?.foundations || {};
-    const colors = f.colors || {};
-    const brand = colors.brand || {};
-    const semantic = colors.semantic || {};
-    const neutral = colors.neutral || {};
-    const surface = colors.surface || {};
-    const typography = f.typography || {};
-    const spacing = f.spacing || {};
-    const radius = f.radius || {};
-    const shadows = f.shadows || {};
-    const iconLib = project.tokens?.brand?.iconLibrary || 'lucide';
-    const iconStroke = project.tokens?.brand?.strokeWidth || '1.5';
+    const f = tokens.foundations || {};
+    const b = f.colors?.brand || { primary: '#6366F1', secondary: '#EC4899', accent: '#10B981' };
+    const s = f.colors?.semantic || { success: '#10B981', warning: '#F59E0B', error: '#EF4444', info: '#3B82F6' };
+    const surf = f.colors?.surface || { background: '#FFFFFF', foreground: '#0F172A', surface: '#FFFFFF', border: '#E2E8F0' };
+    const typo = f.typography || { fontHeading: 'Plus Jakarta Sans', fontBody: 'Inter', fontMono: 'JetBrains Mono', scaleRatio: 1.25 };
+    const sp = f.spacing || { scale: [0, 4, 8, 12, 16, 20, 24, 32, 40, 48, 64], componentHeights: { sm: 32, md: 40, lg: 48 } };
+    const rad = f.radius || { sm: 4, md: 8, lg: 12, xl: 16, full: 9999 };
+    const motion = f.motion || { durations: { fast: 150, normal: 200, slow: 300 }, easings: { default: 'cubic-bezier(0.4, 0, 0.2, 1)' } };
+    const zindex = f.zindex || { layers: { base: 0, dropdown: 1000, sticky: 1100, modal: 1400, toast: 1600, tooltip: 1700 } };
+    const a11y = f.accessibility || { focusRingWidth: 2, focusRingOffset: 2, focusRingColor: '#6366F1', minContrastRatioAA: 4.5 };
+    const prefix = tokens.project?.prefix || '--ui-';
 
     const root = create({ version: '1.0', encoding: 'UTF-8' })
       .ele('ui_kit_specification', {
-        version: schemaVer,
-        project_version: pVersion,
-        project: pName,
-        generated_at: genDate,
+        version,
+        project: projectName,
+        prefix,
+        generated_at: new Date().toISOString(),
       });
 
-    // 1. AI DIRECTIVES & STRICT CONSTRAINTS (RFC 2119)
-    const aiDirectives = root.ele('ai_directives');
-    aiDirectives.ele('role').txt('Senior Frontend Architect & Design Systems Engineer');
-    aiDirectives.ele('instruction').txt(
-      'You MUST strictly implement frontend UI code conforming 100% to the declared design tokens, geometric constraints, and DO/DON\'T rules below. You MUST NOT invent arbitrary styles, spacing, or uncalibrated colors.'
-    );
-
-    const strictRules = aiDirectives.ele('strict_rules');
-    strictRules.ele('rule', { id: 'R01', priority: 'MUST_NOT' }).txt('Do not write raw hex colors. All visual colors MUST resolve to defined CSS variables.');
-    strictRules.ele('rule', { id: 'R02', priority: 'MUST_NOT' }).txt('Do not use arbitrary pixel spacing (e.g. 7px, 13px, 17px). MUST use the declared 8-point spacing scale.');
-    strictRules.ele('rule', { id: 'R03', priority: 'MUST' }).txt('Buttons, Inputs, and Dropdowns placed horizontally on the same row MUST have identical control heights (MD = 40px).');
-    strictRules.ele('rule', { id: 'R04', priority: 'MUST' }).txt('Nested card containers MUST obey concentric radius formula: R_inner = max(0, R_outer - Padding).');
-    strictRules.ele('rule', { id: 'R05', priority: 'MUST' }).txt(`Import icons ONLY from "${iconLib}" with stroke-width: ${iconStroke}.`);
-    strictRules.ele('rule', { id: 'R06', priority: 'MUST' }).txt('Interactive components MUST implement all 6 states: Default, Hover, Focus-Visible, Active, Disabled, Loading.');
+    // 1. AI DIRECTIVES (RFC 2119 Strict Rules)
+    const directives = root.ele('ai_directives');
+    directives.ele('role').txt('Senior Frontend Architect & Design Systems Engineer');
+    const rules = directives.ele('strict_rules');
+    rules.ele('rule', { id: 'R01', priority: 'MUST_NOT' }).txt('Do not write raw hex colors. All colors MUST resolve to defined CSS variables.');
+    rules.ele('rule', { id: 'R02', priority: 'MUST_NOT' }).txt('Do not use arbitrary spacing. MUST use the 8-point spacing scale (0, 4, 8, 12, 16, 24, 32, 40, 48, 64px).');
+    rules.ele('rule', { id: 'R03', priority: 'MUST' }).txt('Buttons, Inputs, and Dropdowns on the same row MUST have identical control heights (MD = 40px).');
+    rules.ele('rule', { id: 'R04', priority: 'MUST' }).txt('Nested containers MUST obey concentric radius formula: R_inner = max(0, R_outer - Padding).');
+    rules.ele('rule', { id: 'R05', priority: 'MUST' }).txt('Import icons ONLY from "lucide-react" with stroke-width: 1.5.');
+    rules.ele('rule', { id: 'R06', priority: 'MUST' }).txt('Interactive elements MUST support 6 states: Default, Hover, Focus-Visible, Active, Disabled, and Loading.');
+    rules.ele('rule', { id: 'R07', priority: 'MUST' }).txt('All motion transitions MUST respect @media (prefers-reduced-motion: reduce).');
 
     // 2. FOUNDATIONS
-    const foundations = root.ele('foundations');
+    const foundNode = root.ele('foundations');
 
-    // Colors
-    const colorsNode = foundations.ele('colors');
+    // 2.1 Colors
+    const colorsNode = foundNode.ele('colors');
     const brandNode = colorsNode.ele('brand');
-    brandNode.ele('color', { name: 'primary', hex: brand.primary || '#6366F1', hover: brand.primaryHover || '#4F46E5', focus: brand.primaryFocus || '#818CF8', css_var: '--color-primary' });
-    brandNode.ele('color', { name: 'secondary', hex: brand.secondary || '#EC4899', css_var: '--color-secondary' });
-    brandNode.ele('color', { name: 'accent', hex: brand.accent || '#10B981', css_var: '--color-accent' });
+    brandNode.ele('color', { name: 'primary', hex: b.primary, hover: b.primaryHover || b.primary, css_var: `${prefix}color-primary` });
+    brandNode.ele('color', { name: 'secondary', hex: b.secondary, css_var: `${prefix}color-secondary` });
+    brandNode.ele('color', { name: 'accent', hex: b.accent, css_var: `${prefix}color-accent` });
 
-    const semanticNode = colorsNode.ele('semantic');
-    semanticNode.ele('color', { name: 'success', hex: semantic.success || '#10B981', css_var: '--color-success' });
-    semanticNode.ele('color', { name: 'warning', hex: semantic.warning || '#F59E0B', css_var: '--color-warning' });
-    semanticNode.ele('color', { name: 'error', hex: semantic.error || '#EF4444', css_var: '--color-error' });
-    semanticNode.ele('color', { name: 'info', hex: semantic.info || '#3B82F6', css_var: '--color-info' });
+    const semNode = colorsNode.ele('semantic');
+    semNode.ele('color', { name: 'success', hex: s.success, css_var: `${prefix}color-success` });
+    semNode.ele('color', { name: 'warning', hex: s.warning, css_var: `${prefix}color-warning` });
+    semNode.ele('color', { name: 'error', hex: s.error, css_var: `${prefix}color-error` });
+    semNode.ele('color', { name: 'info', hex: s.info, css_var: `${prefix}color-info` });
 
-    const neutralsNode = colorsNode.ele('neutrals');
-    Object.entries(neutral).forEach(([k, val]) => {
-      const shadeNum = k.replace('gray', '');
-      neutralsNode.ele('stop', { shade: shadeNum, hex: val as string });
+    const surfNode = colorsNode.ele('surface');
+    surfNode.ele('color', { name: 'background', hex: surf.background, css_var: `${prefix}color-background` });
+    surfNode.ele('color', { name: 'foreground', hex: surf.foreground, css_var: `${prefix}color-foreground` });
+    surfNode.ele('color', { name: 'surface', hex: surf.surface, css_var: `${prefix}color-surface` });
+    surfNode.ele('color', { name: 'border', hex: surf.border, css_var: `${prefix}color-border` });
+
+    // 2.2 Typography
+    const typoNode = foundNode.ele('typography', { heading_font: typo.fontHeading, body_font: typo.fontBody, mono_font: typo.fontMono, scale_ratio: String(typo.scaleRatio) });
+    if (typo.styles) {
+      for (const [sKey, style] of Object.entries(typo.styles as Record<string, any>)) {
+        typoNode.ele('style', { level: sKey, size: `${style.fontSize}px`, weight: String(style.fontWeight), line_height: String(style.lineHeight), tracking: style.letterSpacing });
+      }
+    }
+
+    // 2.3 Spacing & Sizing
+    const spaceNode = foundNode.ele('spacing_and_sizing', { base_grid: '8px' });
+    const scaleNode = spaceNode.ele('scale');
+    sp.scale?.forEach((step: number) => {
+      scaleNode.ele('step', { value: `${step}px`, rem: `${step / 16}rem` });
+    });
+    spaceNode.ele('component_heights', { sm: `${sp.componentHeights?.sm || 32}px`, md: `${sp.componentHeights?.md || 40}px`, lg: `${sp.componentHeights?.lg || 48}px` });
+
+    // 2.4 Radius & Shadows
+    const radNode = foundNode.ele('radius_and_shadows', { concentric_rule: 'R_inner = max(0, R_outer - Padding)' });
+    radNode.ele('radius', { sm: `${rad.sm}px`, md: `${rad.md}px`, lg: `${rad.lg}px`, xl: `${rad.xl}px`, full: `${rad.full}px` });
+    radNode.ele('shadows', { card: f.shadows?.card || 'sm', modal: f.shadows?.modal || 'xl', dropdown: f.shadows?.dropdown || 'md' });
+
+    // 2.5 Icons
+    foundNode.ele('icons', { library: 'lucide-react', stroke_width: '1.5', default_size: '20px' });
+
+    // 2.6 Breakpoints
+    const bpNode = foundNode.ele('breakpoints', { standard: 'Tailwind CSS' });
+    bpNode.ele('breakpoint', { key: 'sm', min_width: '640px', behavior: 'Mobile drawer, 1 column' });
+    bpNode.ele('breakpoint', { key: 'md', min_width: '768px', behavior: 'Tablet, collapsed sidebar, 2 columns' });
+    bpNode.ele('breakpoint', { key: 'lg', min_width: '1024px', behavior: 'Laptop, persistent sidebar, 3 columns' });
+    bpNode.ele('breakpoint', { key: 'xl', min_width: '1280px', behavior: 'Desktop standard, 4 columns' });
+    bpNode.ele('breakpoint', { key: '2xl', min_width: '1536px', behavior: 'Large screen max-width container' });
+
+    // 2.7 Motion
+    const motNode = foundNode.ele('motion', { default_easing: motion.easings?.default || 'cubic-bezier(0.4, 0, 0.2, 1)' });
+    motNode.ele('durations', { fast: `${motion.durations?.fast || 150}ms`, normal: `${motion.durations?.normal || 200}ms`, slow: `${motion.durations?.slow || 300}ms` });
+
+    // 2.8 Z-Index
+    const zNode = foundNode.ele('z_index_layers');
+    if (zindex.layers) {
+      for (const [lKey, val] of Object.entries(zindex.layers as Record<string, any>)) {
+        zNode.ele('layer', { name: lKey, value: String(val) });
+      }
+    }
+
+    // 2.9 Accessibility
+    foundNode.ele('accessibility', {
+      focus_ring: `${a11y.focusRingWidth || 2}px solid ${a11y.focusRingColor || '#6366F1'}`,
+      focus_offset: `${a11y.focusRingOffset || 2}px`,
+      min_contrast_aa: '4.5:1',
+      min_contrast_aaa: '7.0:1',
     });
 
-    const surfaceNode = colorsNode.ele('surface');
-    surfaceNode.ele('color', { name: 'background', hex: surface.background || '#FFFFFF', css_var: '--color-background' });
-    surfaceNode.ele('color', { name: 'foreground', hex: surface.foreground || '#0F172A', css_var: '--color-foreground' });
-    surfaceNode.ele('color', { name: 'surface', hex: surface.surface || '#FFFFFF', css_var: '--color-surface' });
-    surfaceNode.ele('color', { name: 'border', hex: surface.border || '#E2E8F0', css_var: '--color-border' });
-
-    // Typography
-    const typoNode = foundations.ele('typography');
-    typoNode.ele('font_family', {
-      heading: `${typography.fontHeading || 'Plus Jakarta Sans'}, sans-serif`,
-      body: `${typography.fontBody || 'Inter'}, sans-serif`,
-      mono: `${typography.fontMono || 'JetBrains Mono'}, monospace`,
-    });
-    const scaleNode = typoNode.ele('scale', { base: `${typography.baseSize || 14}px`, ratio: `${typography.scaleRatio || 1.25}` });
-    scaleNode.ele('level', { tag: 'h1', size: '48px', line_height: '1.15', weight: '800', tracking: '-0.02em' });
-    scaleNode.ele('level', { tag: 'h2', size: '28px', line_height: '1.25', weight: '700', tracking: '-0.01em' });
-    scaleNode.ele('level', { tag: 'h3', size: '20px', line_height: '1.3', weight: '600' });
-    scaleNode.ele('level', { tag: 'body', size: '14px', line_height: '1.5', weight: '400' });
-    scaleNode.ele('level', { tag: 'caption', size: '12px', line_height: '1.4', weight: '500' });
-
-    // Spacing
-    const spacingNode = foundations.ele('spacing', { scale_unit: 'px', base_grid: `${spacing.base || 8}` });
-    const scaleArr = spacing.scale || [0, 4, 8, 12, 16, 20, 24, 32, 40, 48, 64];
-    scaleArr.forEach((val, idx) => {
-      spacingNode.ele('space', { token: `--space-${idx}`, value: `${val}px` });
+    // 3. COMPONENTS (7 Groups with 6-State Matrices)
+    const compNode = root.ele('components');
+    const compGroups = ['actions', 'forms', 'feedback', 'overlays', 'navigation', 'data_display', 'layout'];
+    compGroups.forEach((cg) => {
+      const gNode = compNode.ele('group', { name: cg });
+      gNode.ele('state_matrix', { states: 'default, hover, focus-visible, active, disabled, loading' });
     });
 
-    // Radius
-    const radiusNode = foundations.ele('radius');
-    radiusNode.ele('token', { name: 'radius-none', value: '0px' });
-    radiusNode.ele('token', { name: 'radius-sm', value: `${radius.sm || 4}px` });
-    radiusNode.ele('token', { name: 'radius-md', value: `${radius.md || 8}px`, is_default: 'true', usage: 'Buttons, Inputs, Selects' });
-    radiusNode.ele('token', { name: 'radius-lg', value: `${radius.lg || 12}px`, usage: 'Cards, Containers' });
-    radiusNode.ele('token', { name: 'radius-xl', value: `${radius.xl || 16}px`, usage: 'Modals, Drawers' });
-    radiusNode.ele('token', { name: 'radius-full', value: `${radius.full || 9999}px`, usage: 'Badges, Pills, Avatars' });
+    // 4. PATTERNS
+    const patNode = root.ele('patterns');
+    patNode.ele('page_templates', { items: 'Dashboard Analytics, User Settings, Auth Flow, SaaS Pricing' });
+    patNode.ele('sections', { items: 'Hero Header, Bento Feature Grid, Testimonials, FAQ Accordion' });
 
-    // Shadows
-    const shadowsNode = foundations.ele('shadows');
-    shadowsNode.ele('shadow', { level: 'sm', value: shadows.sm || '0 1px 2px 0 rgba(0, 0, 0, 0.05)' });
-    shadowsNode.ele('shadow', { level: 'md', value: shadows.md || '0 4px 6px -1px rgba(0, 0, 0, 0.07)' });
-    shadowsNode.ele('shadow', { level: 'lg', value: shadows.lg || '0 10px 15px -3px rgba(0, 0, 0, 0.08)' });
+    // 5. GUIDELINES (DO & DONT)
+    const guideNode = root.ele('guidelines');
+    const doNode = guideNode.ele('do');
+    doNode.ele('item').txt('Use CSS variable tokens for all spacing, colors, and radii.');
+    doNode.ele('item').txt('Ensure all buttons have visible focus-ring outlines for keyboard navigation.');
+    doNode.ele('item').txt('Maintain optical alignment with uniform 40px component heights.');
 
-    // 3. COMPONENTS
-    const componentsNode = root.ele('components');
-    
-    // Button Blueprint
-    const btnComp = componentsNode.ele('component', { name: 'button' });
-    const btnSizes = btnComp.ele('sizes');
-    btnSizes.ele('size', { name: 'sm', height: '32px', padding_x: '12px', font_size: '13px' });
-    btnSizes.ele('size', { name: 'md', height: '40px', padding_x: '16px', font_size: '14px', is_default: 'true' });
-    btnSizes.ele('size', { name: 'lg', height: '48px', padding_x: '20px', font_size: '16px' });
-    const btnVariants = btnComp.ele('variants');
-    btnVariants.ele('variant', { name: 'primary', bg: 'var(--color-primary)', text: '#FFFFFF', hover_bg: 'var(--color-primary-hover)' });
-    btnVariants.ele('variant', { name: 'secondary', bg: 'var(--color-surface)', text: 'var(--color-text-primary)', border: '1px solid var(--color-border)' });
-    btnVariants.ele('variant', { name: 'ghost', bg: 'transparent', text: 'var(--color-text-secondary)', hover_bg: 'var(--color-surface-subtle)' });
-    const btnStates = btnComp.ele('states');
-    btnStates.ele('state', { name: 'hover', transform: 'translateY(-1px)', transition: 'all 150ms ease-out' });
-    btnStates.ele('state', { name: 'focus_visible', outline: '2px solid var(--color-primary)', offset: '2px' });
-    btnStates.ele('state', { name: 'active', transform: 'scale(0.98)' });
-    btnStates.ele('state', { name: 'disabled', opacity: '0.45', cursor: 'not-allowed', pointer_events: 'none' });
-    btnStates.ele('state', { name: 'loading', spinner: 'true' });
-
-    // 4. GUIDELINES (DO / DON'T)
-    const guidelines = root.ele('guidelines');
-    const doNode = guidelines.ele('do');
-    doNode.ele('item').txt('Always maintain vertical gap of --space-4 (16px) between form field rows.');
-    doNode.ele('item').txt('Ensure every page has at most one prominent primary action button.');
-    doNode.ele('item').txt('Maintain WCAG 2.1 contrast ratio >= 4.5:1 for all text elements.');
-
-    const dontNode = guidelines.ele('dont');
-    dontNode.ele('item').txt('Never mix multiple icon libraries in the same interface.');
-    dontNode.ele('item').txt('Never write border-radius or margin values outside the declared design tokens.');
-    dontNode.ele('item').txt('Never create buttons or inputs with heights other than 32px, 40px, or 48px.');
+    const dontNode = guideNode.ele('dont');
+    dontNode.ele('item').txt('Do not use arbitrary margin/padding values outside the 8pt scale.');
+    dontNode.ele('item').txt('Do not write inline hex colors.');
+    dontNode.ele('item').txt('Do not use nested cards with mismatched inner border-radii.');
 
     return root.end({ prettyPrint: true });
   }

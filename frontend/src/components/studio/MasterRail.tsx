@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useDesignStore } from '../../store/useDesignStore';
 import {
+  FolderKanban,
+  SunMoon,
   Palette,
   Type,
   Ruler,
@@ -10,14 +12,21 @@ import {
   Zap,
   Layers,
   Eye,
-  FileCode,
   Box,
+  FileCode,
+  FileSpreadsheet,
+  BellRing,
+  AppWindow,
+  Compass,
   Layout,
+  Layers3,
+  SplitSquareVertical,
+  Workflow,
+  Image,
+  Paintbrush,
   BookOpen,
   FileText,
-  FileSpreadsheet,
-  Sun,
-  Moon,
+  DownloadCloud,
   ChevronDown,
   PanelLeftClose,
   PanelLeftOpen,
@@ -35,12 +44,15 @@ export const MasterRail: React.FC<MasterRailProps> = ({ onOpenXmlExport }) => {
     setActiveCategory,
     toggleRail,
     openSubpanel,
+    setThemeMode,
+    tokens,
   } = useDesignStore();
 
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(tokens.project.themeMode === 'dark');
 
   const toggleStudioTheme = (dark: boolean) => {
     setIsDarkMode(dark);
+    setThemeMode(dark ? 'dark' : 'light');
     if (dark) {
       document.documentElement.setAttribute('data-studio-theme', 'dark');
     } else {
@@ -53,7 +65,15 @@ export const MasterRail: React.FC<MasterRailProps> = ({ onOpenXmlExport }) => {
     openSubpanel(key);
   };
 
-  const sections = [
+  // Full 6 Master Tiers matching the 2006-line Specification
+  const masterTiers = [
+    {
+      title: 'PROJECT & THEME',
+      items: [
+        { key: 'project_info', label: 'Project Info & Prefix', icon: FolderKanban, badge: 'v1.0' },
+        { key: 'theme_modes', label: 'Theme Modes', icon: SunMoon, badge: '3' },
+      ],
+    },
     {
       title: 'FOUNDATIONS',
       items: [
@@ -63,34 +83,48 @@ export const MasterRail: React.FC<MasterRailProps> = ({ onOpenXmlExport }) => {
         { key: 'radius', label: 'Radius & Shadow', icon: Square },
         { key: 'icons', label: 'Icons', icon: Sparkles },
         { key: 'breakpoints', label: 'Breakpoints', icon: Maximize2 },
-        { key: 'motion', label: 'Motion', icon: Zap },
-        { key: 'zindex', label: 'Z-Index', icon: Layers },
-        { key: 'accessibility', label: 'Accessibility', icon: Eye },
+        { key: 'motion', label: 'Motion & Transition', icon: Zap },
+        { key: 'zindex', label: 'Z-Index Layers', icon: Layers },
+        { key: 'accessibility', label: 'Accessibility (A11y)', icon: Eye },
       ],
     },
     {
       title: 'COMPONENTS',
       items: [
-        { key: 'actions', label: 'Actions', icon: Box, badge: '3' },
-        { key: 'forms', label: 'Forms', icon: FileCode, badge: '8' },
-        { key: 'datadisplay', label: 'Data Display', icon: FileSpreadsheet, badge: '5' },
-        { key: 'layout', label: 'Layout', icon: Layout, badge: '3' },
+        { key: 'comp_actions', label: 'Actions', icon: Box, badge: '3' },
+        { key: 'comp_forms', label: 'Forms', icon: FileCode, badge: '6' },
+        { key: 'comp_data_display', label: 'Data Display', icon: FileSpreadsheet, badge: '4' },
+        { key: 'comp_feedback', label: 'Feedback', icon: BellRing, badge: '5' },
+        { key: 'comp_overlays', label: 'Overlays & Modals', icon: AppWindow, badge: '4' },
+        { key: 'comp_navigation', label: 'Navigation', icon: Compass, badge: '5' },
+        { key: 'comp_layout', label: 'Layout & Grid', icon: Layout, badge: '3' },
+      ],
+    },
+    {
+      title: 'PATTERNS',
+      items: [
+        { key: 'pat_templates', label: 'Page Templates', icon: Layers3, badge: '5' },
+        { key: 'pat_sections', label: 'Sections (Hero, FAQ)', icon: SplitSquareVertical, badge: '6' },
+        { key: 'pat_usecases', label: 'Use Cases & Flows', icon: Workflow, badge: '4' },
       ],
     },
     {
       title: 'BRAND & ASSETS',
       items: [
-        { key: 'logo_brand', label: 'Logo & Brand', icon: Box },
-        { key: 'icon_library', label: 'Icon Library', icon: Sparkles },
+        { key: 'brand_logo', label: 'Logo & Brand Identity', icon: Paintbrush },
+        { key: 'brand_icons', label: 'Icon Library', icon: Sparkles },
+        { key: 'brand_illustrations', label: 'Illustrations', icon: Image },
+        { key: 'brand_images', label: 'Images & Media', icon: Image },
       ],
     },
     {
       title: 'SYSTEM & OUTPUT',
       items: [
-        { key: 'design_tokens', label: 'Design Tokens', icon: FileCode },
-        { key: 'rules_guidelines', label: 'Rules & Guidelines', icon: BookOpen },
-        { key: 'ai_instructions', label: 'AI Directives (RFC)', icon: Sparkles },
-        { key: 'xml_spec', label: 'XML Specification', icon: FileText },
+        { key: 'sys_tokens', label: 'Design Tokens JSON', icon: FileCode },
+        { key: 'sys_rules', label: 'Rules & Guidelines', icon: BookOpen },
+        { key: 'sys_ai_directives', label: 'AI Directives (RFC)', icon: Sparkles },
+        { key: 'sys_xml_spec', label: 'XML Specification', icon: FileText },
+        { key: 'sys_import_export', label: 'Import / Export Engine', icon: DownloadCloud },
       ],
     },
   ];
@@ -98,14 +132,14 @@ export const MasterRail: React.FC<MasterRailProps> = ({ onOpenXmlExport }) => {
   return (
     <aside
       className={`bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col shrink-0 h-full transition-all duration-300 select-none z-30 ${
-        isRailCollapsed ? 'w-[56px]' : 'w-[240px]'
+        isRailCollapsed ? 'w-[56px]' : 'w-[250px]'
       }`}
     >
       {/* Header bar with collapse button */}
       <div className="p-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
         {!isRailCollapsed && (
           <span className="text-xs font-bold text-slate-800 dark:text-slate-200 font-heading">
-            Design Standards
+            Design Standards Studio
           </span>
         )}
         <button
@@ -117,17 +151,18 @@ export const MasterRail: React.FC<MasterRailProps> = ({ onOpenXmlExport }) => {
         </button>
       </div>
 
+      {/* Nav List */}
       <div className="flex-1 py-3 px-2 space-y-4 overflow-y-auto">
-        {sections.map((sec) => (
-          <div key={sec.title} className="space-y-1">
+        {masterTiers.map((tier) => (
+          <div key={tier.title} className="space-y-1">
             {!isRailCollapsed && (
               <div className="flex items-center justify-between px-2 py-0.5 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                <span>{sec.title}</span>
+                <span>{tier.title}</span>
                 <ChevronDown className="w-3 h-3" />
               </div>
             )}
             <div className="space-y-0.5">
-              {sec.items.map((item) => {
+              {tier.items.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeCategory === item.key && isSubpanelOpen;
                 return (
@@ -145,7 +180,7 @@ export const MasterRail: React.FC<MasterRailProps> = ({ onOpenXmlExport }) => {
                   >
                     <div className="flex items-center gap-2.5">
                       <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`} />
-                      {!isRailCollapsed && <span>{item.label}</span>}
+                      {!isRailCollapsed && <span className="truncate">{item.label}</span>}
                     </div>
                     {!isRailCollapsed && item.badge && (
                       <span className="text-[10px] font-semibold px-1.5 py-0.2 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded-full">
@@ -170,26 +205,26 @@ export const MasterRail: React.FC<MasterRailProps> = ({ onOpenXmlExport }) => {
           title="Export XML Specification"
         >
           <FileText className="w-4 h-4 shrink-0" />
-          {!isRailCollapsed && <span>Export XML</span>}
+          {!isRailCollapsed && <span>Export Master XML</span>}
         </button>
 
         {!isRailCollapsed && (
           <div className="flex items-center justify-between px-1 text-[11px] text-slate-500">
-            <span>Studio Mode</span>
+            <span>Theme Mode</span>
             <div className="flex items-center p-0.5 bg-slate-200 dark:bg-slate-800 rounded-full">
               <button
                 onClick={() => toggleStudioTheme(false)}
                 className={`p-1 rounded-full ${!isDarkMode ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400'}`}
-                title="Light"
+                title="Light Mode"
               >
-                <Sun className="w-3 h-3" />
+                <SunMoon className="w-3 h-3" />
               </button>
               <button
                 onClick={() => toggleStudioTheme(true)}
                 className={`p-1 rounded-full ${isDarkMode ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400'}`}
-                title="Dark"
+                title="Dark Mode"
               >
-                <Moon className="w-3 h-3" />
+                <SunMoon className="w-3 h-3 rotate-180" />
               </button>
             </div>
           </div>
