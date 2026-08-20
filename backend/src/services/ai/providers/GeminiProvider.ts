@@ -1,5 +1,5 @@
-import { IAIProvider } from './IAIProvider.js';
-import { AIPromptInput, ThemeTokensOutput } from '../../schemas/ai.schema.js';
+import { IAIProvider } from '../IAIProvider.js';
+import { AIPromptInput, ThemeTokensOutput } from '../../../schemas/ai.schema.js';
 
 export class GeminiProvider implements IAIProvider {
   readonly name = 'gemini';

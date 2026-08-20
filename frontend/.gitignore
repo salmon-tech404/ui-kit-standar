@@ -16,6 +16,16 @@ dist-ssr/
 .env.production.local
 *.env
 
+# Tests
+tests/
+**/tests/
+*.test.ts
+*.test.js
+*.test.tsx
+*.spec.ts
+*.spec.js
+*.spec.tsx
+
 # Logs
 logs/
 *.log

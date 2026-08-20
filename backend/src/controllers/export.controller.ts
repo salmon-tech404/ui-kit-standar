@@ -17,10 +17,9 @@ export class ExportController {
       return;
     }
 
-    const xmlContent = XmlExportService.generateXml({
-      name: project.name,
+    const xmlContent = XmlExportService.generateMasterXml({
+      projectName: project.name,
       version: project.version,
-      schemaVersion: project.schemaVersion,
       tokens: project.tokens,
     });
 
@@ -50,10 +49,9 @@ export class ExportController {
       return;
     }
 
-    const xmlContent = XmlExportService.generateXml({
-      name: project.name,
+    const xmlContent = XmlExportService.generateMasterXml({
+      projectName: project.name,
       version: project.version,
-      schemaVersion: project.schemaVersion,
       tokens: project.tokens,
     });
 

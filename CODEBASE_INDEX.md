@@ -28,6 +28,28 @@
   * [`frontend/src/components/studio/LiveCanvas.tsx`](frontend/src/components/studio/LiveCanvas.tsx) — **Pane 3**: Real-time stress-test canvas with click-to-inspect and auto-fit scaling.
   * [`frontend/src/components/studio/DeepInspector.tsx`](frontend/src/components/studio/DeepInspector.tsx) — **Pane 4**: Polymorphic Inspector Engine with Live Component Preview, DO/DON'T guidelines tab, XML fragment preview, and Impact Tracing.
 
+* **Atomic UI Primitives (`frontend/src/components/ui/`):**
+  * [`frontend/src/components/ui/FormInput.tsx`](frontend/src/components/ui/FormInput.tsx) — Reusable styled text/number input with prefix/suffix/helper text.
+  * [`frontend/src/components/ui/FormSelect.tsx`](frontend/src/components/ui/FormSelect.tsx) — Standardized select dropdown with typed options.
+  * [`frontend/src/components/ui/PanelSection.tsx`](frontend/src/components/ui/PanelSection.tsx) — Standardized section container with uppercase tracking title and badge.
+  * [`frontend/src/components/ui/TokenBadge.tsx`](frontend/src/components/ui/TokenBadge.tsx) — Variant badge (default, primary, success, warning, error, mono).
+  * [`frontend/src/components/ui/ColorPickerRow.tsx`](frontend/src/components/ui/ColorPickerRow.tsx) — Reusable interactive color token row with swatch and hex.
+  * [`frontend/src/components/ui/index.ts`](frontend/src/components/ui/index.ts) — Central barrel export.
+
+* **RAKU Production SaaS Demo Platform (`frontend/src/components/demo/`):**
+  * [`frontend/src/components/demo/DemoApp.tsx`](frontend/src/components/demo/DemoApp.tsx) — Main SaaS application router & auth context.
+  * [`frontend/src/components/demo/DemoNavbar.tsx`](frontend/src/components/demo/DemoNavbar.tsx) — Sticky header with dynamic RAKU logo, mobile drawer, and authenticated user dropdown.
+  * [`frontend/src/components/demo/DemoFooter.tsx`](frontend/src/components/demo/DemoFooter.tsx) — Multi-column enterprise footer with newsletter form and social links.
+  * [`frontend/src/components/demo/types.ts`](frontend/src/components/demo/types.ts) — Navigation and profile type definitions.
+  * [`frontend/src/components/demo/pages/HomePage.tsx`](frontend/src/components/demo/pages/HomePage.tsx) — Full home page with Hero, Bento grid, Testimonials, Pricing matrix, FAQ, and CTA.
+  * [`frontend/src/components/demo/pages/AuthPages.tsx`](frontend/src/components/demo/pages/AuthPages.tsx) — Login, Sign Up, Forgot Password, and Reset Password views.
+  * [`frontend/src/components/demo/pages/DashboardPage.tsx`](frontend/src/components/demo/pages/DashboardPage.tsx) — Production App Shell with KPI cards, pure SVG charts, and Recent Tasks data table.
+  * [`frontend/src/components/demo/pages/SettingsPage.tsx`](frontend/src/components/demo/pages/SettingsPage.tsx) — 4-tab settings portal (Profile, Workspace, Notifications matrix, Security & API keys).
+  * [`frontend/src/components/demo/pages/BillingPage.tsx`](frontend/src/components/demo/pages/BillingPage.tsx) — Quota usage meter, Payment cards, and Print-friendly invoice view.
+  * [`frontend/src/components/demo/pages/ProfilePage.tsx`](frontend/src/components/demo/pages/ProfilePage.tsx) — Personal identity banner, statistics, and contribution activity timeline.
+  * [`frontend/src/components/demo/pages/ContentPages.tsx`](frontend/src/components/demo/pages/ContentPages.tsx) — Features overview, About Us, Blog articles, and Contact support form.
+  * [`frontend/src/components/demo/pages/NotFoundPage.tsx`](frontend/src/components/demo/pages/NotFoundPage.tsx) — 404 Not Found error page with recovery navigation.
+
 * **Modal Dialogs (`frontend/src/components/modals/`):**
   * [`frontend/src/components/modals/SettingsModal.tsx`](frontend/src/components/modals/SettingsModal.tsx) — RFC 2119 Custom Rule Builder, Token Namespace Prefix, and Completeness Health Audit checklist.
   * [`frontend/src/components/modals/XmlExportModal.tsx`](frontend/src/components/modals/XmlExportModal.tsx) — Multi-Format Exporter (Master XML, W3C JSON Tokens, Tailwind Config, CSS Variables).

@@ -69,7 +69,7 @@ Ensure high WCAG 2.1 AA contrast ratio (>= 4.5:1) between text and background. O
         }),
       });
 
-      const data = await response.json();
+      const data = (await response.json()) as any;
       if (!data.choices || !data.choices[0]?.message?.content) {
         throw new Error('Invalid response from DeepSeek API');
       }

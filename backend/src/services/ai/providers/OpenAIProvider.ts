@@ -1,5 +1,5 @@
-import { IAIProvider } from './IAIProvider.js';
-import { AIPromptInput, ThemeTokensOutput } from '../../schemas/ai.schema.js';
+import { IAIProvider } from '../IAIProvider.js';
+import { AIPromptInput, ThemeTokensOutput } from '../../../schemas/ai.schema.js';
 
 export class OpenAIProvider implements IAIProvider {
   readonly name = 'openai';
@@ -37,7 +37,7 @@ export class OpenAIProvider implements IAIProvider {
         }),
       });
 
-      const data = await response.json();
+      const data = (await response.json()) as any;
       const rawJson = JSON.parse(data.choices[0].message.content);
       return rawJson;
     } catch (err) {

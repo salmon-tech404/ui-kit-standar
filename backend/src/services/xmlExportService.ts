@@ -136,8 +136,10 @@ export class XmlExportService {
       library: f.icons?.library || 'lucide-react',
       stroke_width: String(f.icons?.strokeWidth || 1.5),
       size_inline: '16px',
-      size_button: '20px',
+      size_button: `${f.icons?.defaultSize || 20}px`,
       size_nav: '24px',
+      color_mode: f.icons?.colorMode || 'primary',
+      custom_color: f.icons?.customColor || b.primary,
       optical_alignment: 'true',
     });
 

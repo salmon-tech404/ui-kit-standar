@@ -17,9 +17,10 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        heading: ['Plus Jakarta Sans', 'sans-serif'],
-        mono: ['JetBrains Mono', 'monospace'],
+        sans: ['var(--font-body)', 'var(--ui-font-family-body)', 'Inter', 'sans-serif'],
+        body: ['var(--font-body)', 'var(--ui-font-family-body)', 'Inter', 'sans-serif'],
+        heading: ['var(--font-heading)', 'var(--ui-font-family-heading)', 'Plus Jakarta Sans', 'sans-serif'],
+        mono: ['var(--font-mono)', 'var(--ui-font-family-mono)', 'JetBrains Mono', 'monospace'],
       }
     },
   },

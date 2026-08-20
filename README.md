@@ -16,9 +16,26 @@
 
 Modern web development with AI coding assistants (Cursor, Claude 3.7, GitHub Copilot) often suffers from **inconsistent visual output**: mismatched border-radii, uncalibrated spacing scales, arbitrary raw HEX colors, and broken interactive component states.
 
-**UI Kit Standard** solves this by bridging visual design systems and AI vibe coding:
+**UI Kit Standard (RAKU Studio)** solves this by bridging visual design systems and AI vibe coding:
 1. **Calibrate Visually:** Configure brand colors, 11 perceptual OKLCH shades, 8pt spacing scales, typography hierarchies, and concentric border-radii in a dynamic 4-Pane Studio.
 2. **Export Master XML (`.xml`):** Generate a deterministic, machine-readable XML specification with **RFC 2119 Directives (`MUST`, `MUST_NOT`)** that feeds directly into Cursor (`.cursorrules`) or LLM system prompts to enforce 100% mathematical consistency in generated code.
+
+---
+
+## 💡 Cơ Chế Tuyển Chọn Giá Trị & Xuất Master XML (Specification Matrix)
+
+Tất cả các thao tác của người dùng trên thanh **Sidebar Rail** chính là **bước tuyển chọn và định lượng toàn bộ tính năng, thông số và quy tắc** để đưa vào **Bản Đặc Tả Master XML**:
+
+1. **Đa Dạng Hình Thức Cấu Hình Giá Trị (Values & Controls):**
+   * **Bật / Tắt tính năng (Checkbox / Toggle):** Tuyển chọn các chế độ hoặc biến thể mà dự án hỗ trợ (ví dụ: hỗ trợ `Light Mode`, `Dark Mode`, `System Mode`).
+   * **Lựa chọn duy nhất (Radio Button / Dropdown / Swatch):** Chọn 1 giá trị mặc định trong tập giá trị (ví dụ: chọn Theme màu chủ đạo, font chữ chính).
+   * **Tùy biến giá trị cụ thể (Custom Value Input / Slider):** Nhập hoặc điều chỉnh trực tiếp các thông số kỹ thuật (ví dụ: đổi `fontSize` từ `24px` sang `22px`, đổi bán kính bo góc từ `8px` sang `6px`, đổi tiền tố biến `--ui-`).
+
+2. **Đóng Gói Đồng Bộ Vào Master XML:**
+   * Khi người dùng bấm **Export XML**, toàn bộ các giá trị cụ thể và các mục được tuyển chọn sẽ được tuần tự hóa chính xác thành file đặc tả XML chuẩn.
+
+3. **AI Đọc Hiểu & Vibe Coding Chính Xác 100%:**
+   * Khi nạp file XML này vào Claude 3.7 hoặc Cursor `.cursorrules`, AI sẽ đọc được **từng thông số chi tiết và từng quy tắc bắt buộc** để tự động sinh mã nguồn frontend hoàn hảo theo đúng ý đồ của bạn, loại bỏ hoàn toàn việc AI tự ý bịa đặt kiểu dáng (hallucination).
 
 ---
 

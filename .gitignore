@@ -10,6 +10,16 @@ node_modules/
 dist/
 build/
 
+# Tests & Scratch
+tests/
+**/tests/
+*.test.ts
+*.test.js
+*.test.tsx
+*.spec.ts
+*.spec.js
+*.spec.tsx
+
 # Logs
 *.log
 
@@ -18,3 +28,6 @@ build/
 Thumbs.db
 .vscode/
 .idea/
+
+# Documentation
+docs/

@@ -9,7 +9,7 @@ export class ProjectService {
   public static async listProjects(userId: string): Promise<IProject[]> {
     return Project.find({ userId: new Types.ObjectId(userId), isArchived: false })
       .sort({ updatedAt: -1 })
-      .lean();
+      .lean() as unknown as IProject[];
   }
 
   /**
